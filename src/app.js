@@ -1,3 +1,6 @@
+var world;
+var worldScale = 30;//1メートルが30ピクセル
+
 var gameScene = cc.Scene.extend({
     onEnter:function () {
         this._super();
@@ -23,11 +26,16 @@ var game = cc.Layer.extend({
         var totem =  cc.Sprite.create(res.totem_png);
         totem.setPosition(size.width/2, size.height/2);
         this.addChild(totem);
+// 重力と物理空間の定義
+        var gravity = new Box2D.Common.Math.b2Vec2(0, -10)
+        world = new Box2D.Dynamics.b2World(gravity, true);
 
         this.scheduleUpdate();
 
     },
     update:function (dt) {
+      // 物理計算をする　速度に10回、位置に対して10回シミュレーション
+      world.Step(dt,10,10);
 
     },
 
