@@ -71,6 +71,7 @@ var height = totem.getContentSize().height
 body.CreateFixture(fixtureDef);
 ```
 //update関数ですべての剛体の位置を更新する
+```
 update:function (dt) {
 	// 物理計算をする　速度に10回、位置に対して10回シミュレーション
 	world.Step(dt,10,10);
@@ -82,3 +83,44 @@ update:function (dt) {
 						}
 				}
 },
+```
+
+## 3.たくさんの物体の物理剛体を定義するのは冗長なので、物理剛体を定義する関数をつくる
+```
+function addPysicsBody(sprite,isDynamic,type){
+
+  var width = sprite.getContentSize().width
+  var height = sprite.getContentSize().height
+  var posX = sprite.x
+  var posY = sprite.y
+  // 物理剛体の定義データ型を作る
+         var bodyDef = new Box2D.Dynamics.b2BodyDef;
+         //物理タイプを選択する　isDynamicがtrueなら重力の影響を受ける
+       if(isDynamic){
+           bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+       }
+       else{
+           bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+       }
+       //物理剛体の位置をセットする
+       bodyDef.position.Set(posX/worldScale,posY/worldScale);
+       //物理剛体へのスプライトの組み込み
+       bodyDef.userData = {
+           type: type,
+           asset: sprite
+       }
+      //  物理剛体をインスタンス
+       var body = world.CreateBody(bodyDef)
+      //  物理特性を定義
+       var fixtureDef = new Box2D.Dynamics.b2FixtureDef;
+       fixtureDef.density = 1.0;
+       fixtureDef.friction = 0.5;
+       fixtureDef.restitution = 0.2;
+       //他の物体に当たったときに計算する形状モデルはb2PolygonShapeｓにする
+       fixtureDef.shape = new Box2D.Collision.Shapes.b2PolygonShape;
+       //他の物体に当たったときに計算する形状の大きさを定義
+       fixtureDef.shape.SetAsBox(0.5*width/worldScale,0.5*height/worldScale);
+      //  物理剛体に物理合成を与える
+       body.CreateFixture(fixtureDef);
+   }
+```
